@@ -1,0 +1,12 @@
+.bin
+/elm-stuff/
+/node_modules/
+/build/
+/tags*
+/elm-package.json
+*.xml
+*.iml
+.old*
+
+# index.html generated when elm make runs on its own
+/index.html
