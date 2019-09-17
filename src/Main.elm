@@ -1,22 +1,21 @@
 module Main exposing (Model, Msg(..), init, main, update, view)
 
 import Browser
-import Element exposing (Element, alignRight, centerY, el, fill, padding, rgb, rgb255, row, spacing, text, width)
+import Element exposing (Element, alignRight, centerY, el, fill, htmlAttribute, padding, rgb, rgb255, row, spacing, text, width)
 import Element.Background as Background
 import Element.Border as Border
+import Element.Events exposing (onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Games.Columns exposing (..)
 import Html exposing (Html)
-import Themes exposing (ThemeInfo, getColour, getTheme)
-
-
-main =
-    Browser.sandbox { init = init, update = update, view = view }
+import Html.Attributes as HtmlAttrs
+import Themes exposing (ThemeInfo, getTheme)
 
 
 type alias Model =
     { currentPage : Page
-    , currentTheme : ThemeInfo
+    , currentTheme : ThemeInfo Msg
+    , mouseIsHoveringOnButton : Bool
     }
 
 
@@ -24,6 +23,7 @@ init : Model
 init =
     { currentPage = Home
     , currentTheme = getTheme Themes.Default
+    , mouseIsHoveringOnButton = False
     }
 
 
@@ -33,6 +33,8 @@ type Page
 
 type Msg
     = ShowPage Page
+    | MouseEntered
+    | MouseExited
 
 
 update : Msg -> Model -> Model
@@ -41,15 +43,17 @@ update msg model =
         ShowPage pageToShow ->
             { model | currentPage = pageToShow }
 
+        MouseEntered ->
+            { model | mouseIsHoveringOnButton = True }
+
+        MouseExited ->
+            { model | mouseIsHoveringOnButton = False }
+
 
 view : Model -> Html.Html Msg
 view model =
-    let
-        ( c1, c2 ) =
-            myGradientColours model
-    in
     Element.layout
-        [ myGradient 0.95 c1 c2
+        [ model.currentTheme.pageBackground
         ]
         (case model.currentPage of
             Home ->
@@ -57,29 +61,22 @@ view model =
         )
 
 
-myGradient : Float -> Element.Color -> Element.Color -> Element.Attribute msg
-myGradient angle c1 c2 =
-    Background.gradient { angle = 2 * pi * angle, steps = [ c1, c2 ] }
-
-
-myGradientColours : Model -> ( Element.Color, Element.Color )
-myGradientColours model =
-    ( getColour model.currentTheme "gradient1"
-    , getColour model.currentTheme "gradient2"
-    )
-
-
-viewHomePage : Model -> Element msg
+viewHomePage : Model -> Element Msg
 viewHomePage model =
-    let
-        ( c1, c2 ) =
-            myGradientColours model
-    in
     el
-        [ myGradient 0.95 c1 c2
+        [ model.currentTheme.pageBackground
         , Font.color (rgb255 255 255 255)
-        , Border.rounded 0
+        , Border.rounded
+            (if model.mouseIsHoveringOnButton then
+                20
+
+             else
+                0
+            )
         , padding 30
+        , onMouseEnter MouseEntered
+        , onMouseLeave MouseExited
+        , htmlAttribute (HtmlAttrs.style "transition" "border-radius 0.2s ease-in")
         ]
         (text "TONY HUNT")
 
@@ -102,3 +99,11 @@ myElement =
         , padding 30
         ]
         (text "stylish!")
+
+
+main =
+    Browser.sandbox
+        { init = init
+        , update = update
+        , view = view
+        }
