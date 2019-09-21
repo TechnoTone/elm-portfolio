@@ -6,6 +6,7 @@ import Element.Background as Background
 import Element.Border as Border
 import Element.Events exposing (onMouseEnter, onMouseLeave)
 import Element.Font as Font
+import Element.Input as Input
 import Games.Columns exposing (..)
 import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
@@ -29,6 +30,7 @@ init =
 
 type Page
     = Home
+    | Games
 
 
 type Msg
@@ -52,33 +54,74 @@ update msg model =
 
 view : Model -> Html.Html Msg
 view model =
-    Element.layout
+    Element.layoutWith
+        { options =
+            [ Element.focusStyle noFocus
+            ]
+        }
         [ model.currentTheme.pageBackground
         ]
-        (case model.currentPage of
-            Home ->
-                viewHomePage model
-        )
+        (viewHomePage model)
 
 
 viewHomePage : Model -> Element Msg
 viewHomePage model =
-    el
-        [ model.currentTheme.pageBackground
-        , Font.color (rgb255 255 255 255)
-        , Border.rounded
-            (if model.mouseIsHoveringOnButton then
-                20
+    Element.row []
+        [ Input.button
+            [ model.currentTheme.pageBackground
+            , Font.color
+                (if model.mouseIsHoveringOnButton || model.currentPage == Home then
+                    rgb255 255 255 255
 
-             else
-                0
-            )
-        , padding 30
-        , onMouseEnter MouseEntered
-        , onMouseLeave MouseExited
-        , htmlAttribute (HtmlAttrs.style "transition" "border-radius 0.2s ease-in")
+                 else
+                    rgb255 255 100 100
+                )
+            , padding
+                (if model.currentPage == Home then
+                    30
+
+                 else
+                    20
+                )
+            , onMouseEnter MouseEntered
+            , onMouseLeave MouseExited
+            , htmlAttribute (HtmlAttrs.style "transition" "padding 30 ease-in")
+            ]
+            { onPress = Just (ShowPage Home)
+            , label = text "TONY HUNT"
+            }
+        , Input.button
+            [ model.currentTheme.pageBackground
+            , Font.color
+                (if model.mouseIsHoveringOnButton || model.currentPage == Games then
+                    rgb255 255 255 255
+
+                 else
+                    rgb255 255 100 100
+                )
+            , padding
+                (if model.currentPage == Home then
+                    30
+
+                 else
+                    20
+                )
+            , onMouseEnter MouseEntered
+            , onMouseLeave MouseExited
+            , htmlAttribute (HtmlAttrs.style "transition" "padding 30 ease-in")
+            ]
+            { onPress = Just (ShowPage Games)
+            , label = text "GAMES"
+            }
         ]
-        (text "TONY HUNT")
+
+
+noFocus : Element.FocusStyle
+noFocus =
+    { borderColor = Nothing
+    , backgroundColor = Nothing
+    , shadow = Nothing
+    }
 
 
 myRowOfStuff : Element msg
