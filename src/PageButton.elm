@@ -1,4 +1,4 @@
-module PageButton exposing (ButtonModel, init, view)
+module PageButton exposing (Style(..), view)
 
 import Element exposing (Element, alignRight, centerY, el, fill, htmlAttribute, mouseOver, padding, rgb, rgb255, row, spacing, text, width)
 import Element.Background as Background
@@ -11,30 +11,24 @@ import Html.Attributes as HtmlAttrs
 import Themes exposing (Theme, getTheme)
 
 
-type alias ButtonModel =
-    { label : String
-    , selected : Bool
-    }
+type Style
+    = Normal
+    | Selected
 
 
-init : ButtonModel
-init =
-    { label = "Button"
-    , selected = False
-    }
-
-
-view : Theme -> ButtonModel -> msg -> Element msg
-view theme model msg =
-    Input.button
-        [ (getTheme theme).pageBackground
-        , Font.color
-            (if model.selected then
+view : Theme -> String -> Style -> msg -> Element msg
+view theme label style msg =
+    let
+        color =
+            if style == Selected then
                 rgb255 255 255 255
 
-             else
+            else
                 rgb255 255 100 100
-            )
+    in
+    Input.button
+        [ (getTheme theme).pageBackground
+        , Font.color color
         , mouseOver
             [ Font.color (rgb255 255 255 255)
             ]
@@ -42,5 +36,5 @@ view theme model msg =
         , padding 30
         ]
         { onPress = Just msg
-        , label = text model.label
+        , label = text label
         }

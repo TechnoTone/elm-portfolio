@@ -10,26 +10,19 @@ import Element.Input as Input
 import Games.Columns exposing (..)
 import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
-import PageButton exposing (ButtonModel, init)
+import PageButton
 import Themes exposing (Theme, getTheme)
 
 
 type alias Model =
-    { pageButtons : PageButtonsModel
-    , currentPage : Page
+    { currentPage : Page
     , currentTheme : Theme
-    }
-
-
-type alias PageButtonsModel =
-    { home : ButtonModel
     }
 
 
 init : Model
 init =
-    { pageButtons = { home = PageButton.init }
-    , currentPage = Home
+    { currentPage = Home
     , currentTheme = Themes.Default
     }
 
@@ -70,7 +63,13 @@ viewHomePage model =
     Element.row []
         [ PageButton.view
             model.currentTheme
-            model.pageButtons.home
+            "Home"
+            (if model.currentPage == Home then
+                PageButton.Selected
+
+             else
+                PageButton.Normal
+            )
             (ShowPage Home)
         ]
 
