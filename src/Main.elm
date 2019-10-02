@@ -10,20 +10,28 @@ import Element.Input as Input
 import Games.Columns exposing (..)
 import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
-import Themes exposing (ThemeInfo, getTheme)
+import PageButton exposing (ButtonModel, init)
+import Themes exposing (Theme, getTheme)
 
 
 type alias Model =
-    { currentPage : Page
-    , currentTheme : ThemeInfo Msg
+    { pageButtons : PageButtonsModel
+    , currentPage : Page
+    , currentTheme : Theme
     , mouseIsHoveringOnButton : Bool
+    }
+
+
+type alias PageButtonsModel =
+    { home : ButtonModel
     }
 
 
 init : Model
 init =
-    { currentPage = Home
-    , currentTheme = getTheme Themes.Default
+    { pageButtons = { home = PageButton.init }
+    , currentPage = Home
+    , currentTheme = Themes.Default
     , mouseIsHoveringOnButton = False
     }
 
@@ -35,8 +43,7 @@ type Page
 
 type Msg
     = ShowPage Page
-    | MouseEntered
-    | MouseExited
+    | NoOp
 
 
 update : Msg -> Model -> Model
@@ -45,11 +52,8 @@ update msg model =
         ShowPage pageToShow ->
             { model | currentPage = pageToShow }
 
-        MouseEntered ->
-            { model | mouseIsHoveringOnButton = True }
-
-        MouseExited ->
-            { model | mouseIsHoveringOnButton = False }
+        NoOp ->
+            model
 
 
 view : Model -> Html.Html Msg
@@ -59,60 +63,17 @@ view model =
             [ Element.focusStyle noFocus
             ]
         }
-        [ model.currentTheme.pageBackground
+        [ (getTheme model.currentTheme).pageBackground
         ]
         (viewHomePage model)
 
 
-viewHomePage : Model -> Element Msg
 viewHomePage model =
     Element.row []
-        [ Input.button
-            [ model.currentTheme.pageBackground
-            , Font.color
-                (if model.mouseIsHoveringOnButton || model.currentPage == Home then
-                    rgb255 255 255 255
-
-                 else
-                    rgb255 255 100 100
-                )
-            , padding
-                (if model.currentPage == Home then
-                    30
-
-                 else
-                    20
-                )
-            , onMouseEnter MouseEntered
-            , onMouseLeave MouseExited
-            , htmlAttribute (HtmlAttrs.style "transition" "padding 30 ease-in")
-            ]
-            { onPress = Just (ShowPage Home)
-            , label = text "TONY HUNT"
-            }
-        , Input.button
-            [ model.currentTheme.pageBackground
-            , Font.color
-                (if model.mouseIsHoveringOnButton || model.currentPage == Games then
-                    rgb255 255 255 255
-
-                 else
-                    rgb255 255 100 100
-                )
-            , padding
-                (if model.currentPage == Home then
-                    30
-
-                 else
-                    20
-                )
-            , onMouseEnter MouseEntered
-            , onMouseLeave MouseExited
-            , htmlAttribute (HtmlAttrs.style "transition" "padding 30 ease-in")
-            ]
-            { onPress = Just (ShowPage Games)
-            , label = text "GAMES"
-            }
+        [ PageButton.view
+            model.currentTheme
+            model.pageButtons.home
+            (ShowPage Home)
         ]
 
 
@@ -122,26 +83,6 @@ noFocus =
     , backgroundColor = Nothing
     , shadow = Nothing
     }
-
-
-myRowOfStuff : Element msg
-myRowOfStuff =
-    row [ width fill, centerY, spacing 30 ]
-        [ myElement
-        , myElement
-        , el [ alignRight ] myElement
-        ]
-
-
-myElement : Element msg
-myElement =
-    el
-        [ Background.color (rgb255 240 0 245)
-        , Font.color (rgb255 255 255 255)
-        , Border.rounded 3
-        , padding 30
-        ]
-        (text "stylish!")
 
 
 main =

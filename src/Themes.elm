@@ -21,6 +21,7 @@ getTheme name =
             let
                 bgColours =
                     [ rgb255 255 50 0
+                    , rgb255 40 10 0
                     , rgb255 120 30 0
                     , rgb255 40 10 0
                     ]
