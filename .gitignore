@@ -10,3 +10,5 @@
 
 # index.html generated when elm make runs on its own
 /index.html
+.cache
+dist

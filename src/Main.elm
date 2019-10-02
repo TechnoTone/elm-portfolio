@@ -18,7 +18,6 @@ type alias Model =
     { pageButtons : PageButtonsModel
     , currentPage : Page
     , currentTheme : Theme
-    , mouseIsHoveringOnButton : Bool
     }
 
 
@@ -32,7 +31,6 @@ init =
     { pageButtons = { home = PageButton.init }
     , currentPage = Home
     , currentTheme = Themes.Default
-    , mouseIsHoveringOnButton = False
     }
 
 
