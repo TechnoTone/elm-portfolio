@@ -1,6 +1,6 @@
 module Themes exposing (Theme(..), ThemeInfo, getTheme)
 
-import Colors
+import Colors exposing (..)
 import Element exposing (Color, rgb, rgb255)
 import Element.Background as Background
 import List.Extra exposing (find)
@@ -8,11 +8,12 @@ import List.Extra exposing (find)
 
 type Theme
     = Default
+    | BlueTheme
     | RedStripe
 
 
 type alias ThemeInfo decorative msg =
-    { name : String
+    { label : String
     , pageBackground : Element.Attr decorative msg
     , buttonBackground : Element.Attr decorative msg
     , buttonText : ColorOptions
@@ -37,13 +38,20 @@ getColorOptions c1 c2 c3 c4 =
 
 
 getTheme : Theme -> ThemeInfo decorative msg
-getTheme name =
-    case name of
+getTheme theme =
+    case theme of
         Default ->
-            { name = "Default"
-            , pageBackground = Background.color Colors.lightGrey
-            , buttonBackground = Background.color Colors.darkGrey
-            , buttonText = getColorOptions Colors.lightGrey Colors.white Colors.white Colors.black
+            { label = "Default"
+            , pageBackground = Background.color lightGrey
+            , buttonBackground = Background.color darkGrey
+            , buttonText = getColorOptions lightGrey white white black
+            }
+
+        BlueTheme ->
+            { label = "Blue"
+            , pageBackground = Background.color darkBlue
+            , buttonBackground = Background.color lightBlue
+            , buttonText = getColorOptions lightGrey white white black
             }
 
         RedStripe ->
@@ -55,10 +63,10 @@ getTheme name =
                     , rgb255 40 10 0
                     ]
             in
-            { name = "RedStripe"
+            { label = "RedStripe"
             , pageBackground = Background.gradient { angle = 2.8, steps = bgColours }
             , buttonBackground = Background.color (rgb255 200 100 100)
-            , buttonText = getColorOptions (rgb255 255 100 100) Colors.white Colors.white Colors.black
+            , buttonText = getColorOptions (rgb255 255 100 100) white white black
             }
 
 

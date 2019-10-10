@@ -53,6 +53,9 @@ update msg model =
                 | currentTheme =
                     case model.currentTheme of
                         Themes.Default ->
+                            Themes.BlueTheme
+
+                        Themes.BlueTheme ->
                             Themes.RedStripe
 
                         Themes.RedStripe ->
@@ -123,7 +126,7 @@ themeSelectButton model =
         , padding 10
         ]
         { onPress = Just NextTheme
-        , label = text ("Theme : " ++ theme.name)
+        , label = text ("Theme : " ++ theme.label)
         }
 
 

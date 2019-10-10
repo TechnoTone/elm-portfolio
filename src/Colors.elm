@@ -1,4 +1,4 @@
-module Colors exposing (Adjustment(..), adjust, black, darkGrey, grey, lightGrey, rgbAdjust, rgbAdjust2, white)
+module Colors exposing (Adjustment(..), adjust, black, blue, darkBlue, darkGrey, green, grey, lightBlue, lightGrey, red, rgbAdjust, white)
 
 import Element exposing (Color, fromRgb, fromRgb255, rgb255, toRgb)
 
@@ -28,33 +28,88 @@ grey i =
     rgb255 i i i
 
 
+red : Int -> Color
+red i =
+    rgb255 i 0 0
+
+
+green : Int -> Color
+green i =
+    rgb255 0 i 0
+
+
+darkBlue : Color
+darkBlue =
+    adjust darkGrey <| B 140
+
+
+lightBlue : Color
+lightBlue =
+    adjust lightGrey <| B 2
+
+
+blue : Int -> Color
+blue i =
+    rgb255 0 0 i
+
+
 type Adjustment
     = Intensity Float
+    | RGBA Float Float Float Float
+    | RGB Float Float Float
     | R Float
     | G Float
     | B Float
-    | RGB Float Float Float
-    | RGBA Float Float Float Float
     | A Float
+    | Rset Float
+    | Gset Float
+    | Bset Float
+    | Aset Float
 
 
 adjust : Color -> Adjustment -> Color
-adjust c a =
+adjust c adj =
     let
         rgbValues =
             toRgb c
     in
-    case a of
-        Intensity i ->
-            fromRgb
-                { red = rgbValues.red * i
-                , green = rgbValues.green * i
-                , blue = rgbValues.blue * i
-                , alpha = rgbValues.alpha
-                }
+    case adj of
+        Intensity x ->
+            rgbAdjust c x x x x
 
-        _ ->
-            c
+        RGBA r g b a ->
+            rgbAdjust c r g b a
+
+        RGB r g b ->
+            rgbAdjust c r g b 1
+
+        R x ->
+            rgbAdjust c x 1 1 1
+
+        G x ->
+            rgbAdjust c 1 x 1 1
+
+        B x ->
+            rgbAdjust c 1 1 x 1
+
+        A x ->
+            rgbAdjust c 1 1 1 x
+
+        Rset x ->
+            fromRgb
+                { rgbValues | red = x }
+
+        Gset x ->
+            fromRgb
+                { rgbValues | green = x }
+
+        Bset x ->
+            fromRgb
+                { rgbValues | blue = x }
+
+        Aset x ->
+            fromRgb
+                { rgbValues | alpha = x }
 
 
 rgbAdjust : Color -> Float -> Float -> Float -> Float -> Color
@@ -68,17 +123,4 @@ rgbAdjust c r g b a =
         , green = rgbValues.green * g
         , blue = rgbValues.blue * b
         , alpha = rgbValues.alpha * a
-        }
-
-
-rgbAdjust2 c { red, green, blue, alpha } =
-    let
-        rgbValues =
-            toRgb c
-    in
-    fromRgb
-        { red = rgbValues.red * red
-        , green = rgbValues.green * green
-        , blue = rgbValues.blue * blue
-        , alpha = rgbValues.alpha * alpha
         }
