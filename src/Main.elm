@@ -76,7 +76,12 @@ view model =
         [ (getTheme model.currentTheme).pageBackground
         , padding 10
         ]
-        (header model)
+        (Element.column
+            [ Element.width fill ]
+            [ header model
+            , content model
+            ]
+        )
 
 
 header : Model -> Element Msg
@@ -92,6 +97,11 @@ header model =
         , pageButton model "Page 5" P5
         , themeSelectButton model
         ]
+
+
+content : Model -> Element Msg
+content model =
+    Element.el [] (text "content")
 
 
 pageButton : Model -> String -> Page -> Element Msg

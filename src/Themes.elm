@@ -51,7 +51,7 @@ getTheme theme =
             { label = "Blue"
             , pageBackground = Background.color darkBlue
             , buttonBackground = Background.color lightBlue
-            , buttonText = getColorOptions lightGrey white white black
+            , buttonText = getColorOptions darkGrey white white black
             }
 
         RedStripe ->

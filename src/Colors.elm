@@ -10,7 +10,7 @@ black =
 
 darkGrey : Color
 darkGrey =
-    grey 70
+    grey 90
 
 
 lightGrey : Color
