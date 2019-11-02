@@ -14,5 +14,4 @@ type Page
 type Msg
     = ShowPage Page
     | NextTheme
-    | Animate Animation.Msg
     | NoOp

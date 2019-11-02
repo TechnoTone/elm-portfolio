@@ -1,6 +1,5 @@
 module Main exposing (Model, init, main, update, view)
 
-import Animation
 import Browser
 import Colors
 import Element exposing (Element, alignRight, centerY, el, fill, htmlAttribute, padding, rgb, rgb255, row, spacing, text, width)
@@ -34,35 +33,31 @@ initPageButtons =
     ]
 
 
-init : ( Model, Cmd Msg )
+init : Model
 init =
-    ( { currentPage = About
-      , currentTheme = Themes.Default
-      , pageButtons = initPageButtons
-      }
-    , Cmd.none
-    )
+    { currentPage = About
+    , currentTheme = Themes.Default
+    , pageButtons = initPageButtons
+    }
 
 
 rgba r g b a =
     { red = r, blue = b, green = g, alpha = a }
 
 
-update : Msg -> Model -> ( Model, Cmd Msg )
+update : Msg -> Model -> Model
 update msg model =
     case msg of
         ShowPage page ->
-            ( { model
+            { model
                 | pageButtons =
                     model.pageButtons
                         |> List.map (PageButton.press page)
                 , currentPage = page
-              }
-            , Cmd.none
-            )
+            }
 
         NextTheme ->
-            ( { model
+            { model
                 | currentTheme =
                     case model.currentTheme of
                         Themes.Default ->
@@ -73,19 +68,10 @@ update msg model =
 
                         Themes.RedStripe ->
                             Themes.Default
-              }
-            , Cmd.none
-            )
-
-        Animate animMsg ->
-            ( { model
-                | pageButtons = model.pageButtons |> List.map (PageButton.onAnimation <| Animation.update animMsg)
-              }
-            , Cmd.none
-            )
+            }
 
         Types.NoOp ->
-            ( model, Cmd.none )
+            model
 
 
 view : Model -> Html.Html Msg
@@ -155,17 +141,11 @@ outerShadow =
 
 main : Program () Model Msg
 main =
-    Browser.element
-        { init = always init
+    Browser.sandbox
+        { init = init
         , view = view
         , update = update
-        , subscriptions = subscriptions
         }
-
-
-subscriptions : Model -> Sub Msg
-subscriptions model =
-    Animation.subscription Animate <| List.map .animationState model.pageButtons
 
 
 noFocus : Element.FocusStyle
