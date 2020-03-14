@@ -1,6 +1,7 @@
 module Main exposing (Model, init, main, update, view)
 
 import Browser
+import Browser.Navigation as Nav
 import Colors
 import Element exposing (Element, alignRight, centerY, el, fill, htmlAttribute, padding, rgb, rgb255, row, spacing, text, width)
 import Element.Background as Background
@@ -8,12 +9,13 @@ import Element.Border as Border
 import Element.Events exposing (onMouseEnter, onMouseLeave)
 import Element.Font as Font
 import Element.Input as Input
-import Games.Columns exposing (..)
+import Games.Columns
 import Html
 import Html.Attributes
 import PageButton exposing (PageButton, getPageButton)
 import Themes exposing (Theme, getTheme)
 import Types exposing (Msg(..), Page(..))
+import Url
 
 
 type alias Model =
@@ -33,31 +35,31 @@ initPageButtons =
     ]
 
 
-init : Model
-init =
-    { currentPage = About
+init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
+init flags url key =
+    (    { currentPage = About
     , currentTheme = Themes.Default
     , pageButtons = initPageButtons
-    }
+    }, Cmd.none)
 
 
 rgba r g b a =
     { red = r, blue = b, green = g, alpha = a }
 
 
-update : Msg -> Model -> Model
+update : Msg -> Model -> (Model, Cmd Msg)
 update msg model =
     case msg of
         ShowPage page ->
-            { model
+            ({ model
                 | pageButtons =
                     model.pageButtons
                         |> List.map (PageButton.press page)
                 , currentPage = page
-            }
+            },Cmd.none)
 
         NextTheme ->
-            { model
+            ({ model
                 | currentTheme =
                     case model.currentTheme of
                         Themes.Default ->
@@ -68,29 +70,41 @@ update msg model =
 
                         Themes.RedStripe ->
                             Themes.Default
-            }
+            },Cmd.none)
 
         Types.NoOp ->
-            model
+            (model,Cmd.none)
+
+        UrlRequested urlRequest ->
+            (model,Cmd.none)
 
 
-view : Model -> Html.Html Msg
+        UrlChanged url ->
+            (model,Cmd.none)
+
+
+
+view : Model -> Browser.Document Msg
 view model =
-    Element.layoutWith
-        { options =
-            [ Element.focusStyle noFocus
+    { title = "title"
+    , body =
+       [
+        Element.layoutWith
+            { options =
+                [ Element.focusStyle noFocus
+                ]
+            }
+            [ (getTheme model.currentTheme).pageBackground
+            , padding 10
             ]
-        }
-        [ (getTheme model.currentTheme).pageBackground
-        , padding 10
+            (Element.column
+                [ Element.width fill ]
+                [ header model
+                , content model
+                ]
+            )
         ]
-        (Element.column
-            [ Element.width fill ]
-            [ header model
-            , content model
-            ]
-        )
-
+    }
 
 header : Model -> Element Msg
 header model =
@@ -141,10 +155,13 @@ outerShadow =
 
 main : Program () Model Msg
 main =
-    Browser.sandbox
+    Browser.application
         { init = init
         , view = view
         , update = update
+        , subscriptions = always Sub.none
+        , onUrlRequest = UrlRequested
+        , onUrlChange = UrlChanged
         }
 
 
@@ -154,3 +171,5 @@ noFocus =
     , backgroundColor = Nothing
     , shadow = Nothing
     }
+
+

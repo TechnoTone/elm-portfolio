@@ -1,6 +1,8 @@
 module Types exposing (Msg(..), Page(..))
 
 import Animation
+import Browser
+import Url
 
 
 type Page
@@ -12,6 +14,12 @@ type Page
 
 
 type Msg
-    = ShowPage Page
+    = UrlRequested Browser.UrlRequest
+    | UrlChanged Url.Url
+    | ShowPage Page
     | NextTheme
     | NoOp
+
+type Route
+    = Home
+    | Test
