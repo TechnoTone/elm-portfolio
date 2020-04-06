@@ -10,7 +10,7 @@ import Element.Input as Input
 import Html exposing (Html)
 import Html.Attributes as HtmlAttrs
 import Themes exposing (Theme, getTheme)
-import Types exposing (Msg(..), Page(..))
+import Types exposing (Msg(..), Route(..))
 
 
 type Style
@@ -20,7 +20,7 @@ type Style
 
 type alias PageButton =
     { label : String
-    , page : Page
+    , page : Route
     , style : Style
     , animationState : Animation.State
     }
@@ -38,7 +38,7 @@ getStyle b =
 getPageButton : PageButton
 getPageButton =
     { label = ""
-    , page = About
+    , page = Home
     , style = Normal
     , animationState =
         Animation.style
@@ -53,7 +53,7 @@ getPageButton =
     }
 
 
-view : Theme -> Page -> PageButton -> Element Msg
+view : Theme -> Route -> PageButton -> Element Msg
 view theme page pageButton =
     let
         themeInfo =
@@ -109,7 +109,7 @@ onAnimation animationFn btn =
     { btn | animationState = animationFn btn.animationState }
 
 
-press : Page -> PageButton -> PageButton
+press : Route -> PageButton -> PageButton
 press pageToShow button =
     if button.page == pageToShow then
         { button

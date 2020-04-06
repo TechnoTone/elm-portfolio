@@ -1,12 +1,12 @@
-module Types exposing (Msg(..), Page(..))
+module Types exposing (Msg(..), Route(..))
 
 import Animation
 import Browser
 import Url
 
 
-type Page
-    = About
+type Route
+    = Home
     | Games
     | P3
     | P4
@@ -16,10 +16,6 @@ type Page
 type Msg
     = UrlRequested Browser.UrlRequest
     | UrlChanged Url.Url
-    | ShowPage Page
+    | ShowPage Route
     | NextTheme
     | NoOp
-
-type Route
-    = Home
-    | Test

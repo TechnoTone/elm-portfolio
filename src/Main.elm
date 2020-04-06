@@ -14,12 +14,14 @@ import Html
 import Html.Attributes
 import PageButton exposing (PageButton, getPageButton)
 import Themes exposing (Theme, getTheme)
-import Types exposing (Msg(..), Page(..))
+import Types exposing (..)
 import Url
+import Url.Parser as Parser exposing ((</>), Parser)
 
 
 type alias Model =
-    { currentPage : Page
+    { key : Nav.Key
+    , currentRoute : Route
     , currentTheme : Theme
     , pageButtons : List PageButton
     }
@@ -27,7 +29,7 @@ type alias Model =
 
 initPageButtons : List PageButton
 initPageButtons =
-    [ { getPageButton | label = "About", page = About }
+    [ { getPageButton | label = "About", page = Home }
     , { getPageButton | label = "Games", page = Games }
     , { getPageButton | label = "P3", page = P3 }
     , { getPageButton | label = "P4", page = P4 }
@@ -36,30 +38,41 @@ initPageButtons =
 
 
 init : () -> Url.Url -> Nav.Key -> ( Model, Cmd Msg )
-init flags url key =
-    (    { currentPage = About
-    , currentTheme = Themes.Default
-    , pageButtons = initPageButtons
-    }, Cmd.none)
+init _ url key =
+    withNoCmd <|
+        setRoute
+            { key = key
+            , currentRoute = Home
+            , currentTheme = Themes.Default
+            , pageButtons = initPageButtons
+            }
+            (fromUrl url)
+
+
+withNoCmd : Model -> ( Model, Cmd a )
+withNoCmd =
+    withCmd Cmd.none
+
+
+withCmd : Cmd a -> Model -> ( Model, Cmd a )
+withCmd cmd model =
+    ( model, cmd )
 
 
 rgba r g b a =
     { red = r, blue = b, green = g, alpha = a }
 
 
-update : Msg -> Model -> (Model, Cmd Msg)
+update : Msg -> Model -> ( Model, Cmd Msg )
 update msg model =
     case msg of
         ShowPage page ->
-            ({ model
-                | pageButtons =
-                    model.pageButtons
-                        |> List.map (PageButton.press page)
-                , currentPage = page
-            },Cmd.none)
+            ( setRoute model page
+            , Nav.pushUrl model.key (routeToString page)
+            )
 
         NextTheme ->
-            ({ model
+            ( { model
                 | currentTheme =
                     case model.currentTheme of
                         Themes.Default ->
@@ -70,26 +83,40 @@ update msg model =
 
                         Themes.RedStripe ->
                             Themes.Default
-            },Cmd.none)
+              }
+            , Cmd.none
+            )
 
         Types.NoOp ->
-            (model,Cmd.none)
+            ( model, Cmd.none )
 
-        UrlRequested urlRequest ->
-            (model,Cmd.none)
+        UrlRequested (Browser.Internal url) ->
+            ( model, Nav.pushUrl model.key (Url.toString url) )
 
+        UrlRequested (Browser.External href) ->
+            ( model, Nav.load href )
 
         UrlChanged url ->
-            (model,Cmd.none)
+            ( setRoute model <| fromUrl url
+            , Cmd.none
+            )
 
+
+setRoute : Model -> Route -> Model
+setRoute model route =
+    { model
+        | pageButtons =
+            model.pageButtons
+                |> List.map (PageButton.press route)
+        , currentRoute = route
+    }
 
 
 view : Model -> Browser.Document Msg
 view model =
     { title = "title"
     , body =
-       [
-        Element.layoutWith
+        [ Element.layoutWith
             { options =
                 [ Element.focusStyle noFocus
                 ]
@@ -106,6 +133,7 @@ view model =
         ]
     }
 
+
 header : Model -> Element Msg
 header model =
     Element.row
@@ -113,7 +141,7 @@ header model =
         , spacing 10
         ]
         (List.append
-            (List.map (PageButton.view model.currentTheme model.currentPage) model.pageButtons)
+            (List.map (PageButton.view model.currentTheme model.currentRoute) model.pageButtons)
             [ themeSelectButton model ]
         )
 
@@ -173,3 +201,41 @@ noFocus =
     }
 
 
+routeParser : Parser (Route -> a) a
+routeParser =
+    Parser.oneOf
+        [ Parser.map Games (Parser.s "games")
+        , Parser.map P3 (Parser.s "p3")
+        , Parser.map P4 (Parser.s "p4")
+        , Parser.map P5 (Parser.s "p5")
+        ]
+
+
+fromUrl : Url.Url -> Route
+fromUrl url =
+    Parser.parse routeParser url
+        |> Maybe.withDefault Home
+
+
+routeToString : Route -> String
+routeToString page =
+    String.join "/" (routeToPieces page)
+
+
+routeToPieces : Route -> List String
+routeToPieces page =
+    case page of
+        Home ->
+            []
+
+        Games ->
+            [ "games" ]
+
+        P3 ->
+            [ "p3" ]
+
+        P4 ->
+            [ "p4" ]
+
+        P5 ->
+            [ "p5" ]
