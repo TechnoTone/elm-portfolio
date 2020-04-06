@@ -66,7 +66,7 @@ getTheme theme =
             { label = "RedStripe"
             , pageBackground = Background.gradient { angle = 2.8, steps = bgColours }
             , buttonBackground = Background.color (rgb255 200 100 100)
-            , buttonText = getColorOptions (rgb255 255 100 100) white white black
+            , buttonText = getColorOptions (rgb255 255 0 0) white white black
             }
 
 
